@@ -53,16 +53,62 @@ We place those machines in a single class where they could 'talk with each other
 ![State-Machine-Image jumping-diving](https://github.com/UnterrainerInformatik/FiniteStateMachine/raw/master/docs/jumping_diving.png)
 
 ```C#
-Fsm<State, Trigger>.Builder(State.STANDING)
-  .State(State.DUCKING)
-    .TransitionTo(State.STANDING).On(Trigger.UP)
-  .State(State.STANDING)
-    .TransitionTo(State.DUCKING).On(Trigger.DOWN)
-    .TransitionTo(State.JUMPING).On(Trigger.UP)
-  .State(State.JUMPING)
-    .TransitionTo(State.DIVING).On(Trigger.DOWN)
-    .State(State.DIVING)
-  .Build();
+  var fsmBuilder = Fsm<State, Trigger>.Builder(State.STANDING);
+
+fsmBuilder.State(State.STANDING)
+            .OnEnter(e => { 
+              Console.WriteLine("STANDING"); 
+              // TODO: Make the avatar stand
+            })
+          .State(State.DUCKING)
+            .OnEnter(e => { 
+              Console.WriteLine("DUCKING"); 
+              // TODO: Make the avatar actually duck
+            })
+          .State(State.JUMPING)
+            .OnEnter(e => { 
+              Console.WriteLine("JUMPING"); 
+              // TODO: Maybe a loop that jumps once per second
+            })
+          .State(State.DIVING)
+            .OnEnter(e => { 
+              Console.WriteLine("DIVING"); 
+              // TODO: Big Task - show avatar swimming through water
+            })
+
+  fsmBuilder.State(State.STANDING)
+            .TransitionTo(State.DUCKING).On(Trigger.DOWN)
+            .TransitionTo(State.JUMPING).On(Trigger.UP)
+          .State(State.DUCKING)
+            .TransitionTo(State.STANDING).On(Trigger.UP)
+          .State(State.JUMPING)
+            .TransitionTo(State.DIVING).On(Trigger.DOWN)
+          .State(State.DIVING)
+
+  var fsm = fsmBuilder.Build();
+
+  while (true)
+  {
+      if (Console.KeyAvailable)
+      {
+          var info = Console.ReadKey();
+          switch (info.Key)
+          {
+              case ConsoleKey.UpArrow:
+                  fsm.Trigger(Trigger.UP);
+                  break;
+
+              case ConsoleKey.DownArrow:
+                  fsm.Trigger(Trigger.DOWN);
+                  break;
+
+          }
+      }
+  }
+
+  enum State { DUCKING, STANDING, JUMPING, DIVING };
+  enum Trigger { UP, DOWN };
+
 ```
 
 
